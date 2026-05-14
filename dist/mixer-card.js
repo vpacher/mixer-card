@@ -42,7 +42,8 @@ function getConfigDefaults(config) {
     haCard: config && config.haCard !== undefined ? config.haCard : true,
     description: config && config.description ? config.description : '',
     title: config && config.title ? config.title : '',
-    faderKnobImage: config && config.faderKnobImage ? config.faderKnobImage : ''
+    faderKnobImage: config && config.faderKnobImage ? config.faderKnobImage : '',
+    orientation: config && config.orientation ? config.orientation : 'vertical'
   };
 }
 function generateHeader(cfg) {
@@ -360,56 +361,12 @@ class MixerCard extends s$3 {
       }
       faderTemplates.push(this.renderFader(faderRow, stateObj, cfg));
     }
-`;
-
-/* jshint esversion: 8 */
-class MixerCard extends s$3 {
-  constructor() {
-    super();
-    // For relative fader tracking
-    this._relativeFaderActive = false;
-    this._relativeFaderStartY = 0;
-    this._relativeFaderStartValue = 0;
-    this._relativeFaderMin = 0;
-    this._relativeFaderMax = 100;
-    this._relativeFaderStateObj = null;
-    this._relativeFaderInput = null;
-    this._relativeFaderSensitivity = 0.2; // percent per pixel
-    this._onRelativeFaderMove = this._onRelativeFaderMove.bind(this);
-    this._onRelativeFaderUp = this._onRelativeFaderUp.bind(this);
-  }
-  static get properties() {
-    return {
-      hass: {},
-      config: {},
-      active: {}
-    };
-  }
-  static get styles() {
-    return mixerCardStyles;
-  }
-  render() {
-    const cfg = getConfigDefaults(this.config);
-    const faderTemplates = [];
-    this.faderColors = {};
-    if (!this.config || !this.config.faders || !Array.isArray(this.config.faders)) {
-      throw new Error('Invalid configuration: "faders" must be an array.');
-    }
-    for (let faderIndex = 0; faderIndex < this.config.faders.length; faderIndex++) {
-      const faderRow = this.config.faders[faderIndex];
-      const stateObj = this.hass.states[faderRow.entity_id];
-      if (!stateObj) {
-        console.warn(`Entity ${faderRow.entity_id} not found in Home Assistant.`);
-        continue;
-      }
-      faderTemplates.push(this.renderFader(faderRow, stateObj, cfg));
-    }
     const headerSection = generateHeader(cfg);
     const card = x`
       ${headerSection}
       <div>
-        <div class='mixer-card'>
-          <div class='fader-holder fader-theme-${cfg.faderTheme}'>
+        <div class='mixer-card fader-orientation-${cfg.orientation}'>
+          <div class='fader-holder fader-theme-${cfg.faderTheme}'>          
             ${faderTemplates}
           </div>
         </div>
@@ -525,6 +482,7 @@ class MixerCard extends s$3 {
   _onRelativeFaderUp(e) {
     if (!this._relativeFaderActive) return;
     this._relativeFaderActive = false;
+    this._relativeFaderStates = {}; // Stores state for each active relative fader, keyed by entity_id
     this.requestUpdate();
     window.removeEventListener('mousemove', this._onRelativeFaderMove);
     window.removeEventListener('touchmove', this._onRelativeFaderMove);
