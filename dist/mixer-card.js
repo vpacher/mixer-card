@@ -507,12 +507,15 @@ class MixerCard extends s$3 {
   }
   _renderActiveButton(activeEntity, activeState, unavailable, faderActiveColor, faderInactiveColor, icon) {
     return activeEntity ? x`
-          <div class="active-button" ${unavailable ? 'disabled' : ''}
-               @click="${e => this._toggleActive(e)}"
-               data-entity="${activeEntity}"
-               data-current-state="${activeState}">
+          <div 
+              .key="${activeEntity}_${activeState}"
+              class="active-button" 
+              ?disabled="${unavailable}"
+              @click="${e => this._toggleActive(e)}"
+              data-entity="${activeEntity}"
+              data-current-state="${activeState}">
             <span class="color" style="color:${activeState === 'on' ? faderActiveColor : faderInactiveColor};">
-              <ha-icon icon="${icon}" />
+              <ha-icon .icon="${icon}"></ha-icon>
             </span>
           </div>
         ` : x`&nbsp;`;
@@ -552,8 +555,12 @@ class MixerCard extends s$3 {
   _previewLevel(entityId, value) {
     const el = this.shadowRoot.getElementById(entityId);
     const colors = this.faderColors[entityId];
-    if (el && colors && !el.className.includes('fader-inactive')) {
-      el.style.background = `linear-gradient(to right, ${colors.active_color} ${value}%, ${colors.track_color} ${value}%)`;
+    if (el && colors) {
+      if (!el.className.includes('fader-inactive')) {
+        el.style.background = `linear-gradient(to right, ${colors.active_color} ${value}%, ${colors.track_color} ${value}%)`;
+      } else {
+        el.style.background = '';
+      }
     }
   }
   _toggleActive(e) {
