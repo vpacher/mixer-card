@@ -65,9 +65,13 @@ This configuration applies to all faders in the card
 
 ### Responsive layout
 
-By default (when `faderWidth`/`faderHeight` are left unset) the card sizes itself fluidly: fader thickness and length scale with the viewport via CSS `clamp()`, faders wrap onto a new row instead of being clipped or forced into a horizontal scrollbar on narrow screens, and the card requests full-width grid placement (`columns: 'full'`) in Home Assistant's sections view so it doesn't need pixel-based column guessing.
+By default (when `faderWidth`/`faderHeight` are left unset) the card sizes itself fluidly: it measures the actual width Home Assistant gives it and divides that across the current faders, so fader thickness fills the card exactly rather than guessing a fixed size — faders wrap onto a new row instead of being clipped or forced into a horizontal scrollbar if even the minimum width doesn't fit. The card also requests full-width grid placement (`columns: 'full'`, `rows: 'auto'`) in Home Assistant's sections view, and fully implements `getGridOptions()` so it reports as resizable in the layout editor.
 
-Set `faderWidth`/`faderHeight` explicitly to opt back into the old fixed-pixel sizing behavior.
+Set `faderWidth`/`faderHeight` explicitly to opt back into fixed-pixel sizing.
+
+### Physical theme (X32-style)
+
+Setting `faderTheme: physical` renders each fader closer to a real Behringer X32/M32 channel strip: the dB value reads out above the fader instead of below, and a printed dB scale (+10 to -∞, calibrated to the X32's actual fader law) appears to its left, with tick marks aligned to the fader's true top/bottom travel. The scale is on by default; set `showDbScale: false` (card-level, or per-fader) to hide it — see the option tables above. Vertical orientation only; horizontal physical faders render like the modern theme.
 
 ### Fader Card Configuration
 This is the configuration for each individual fader
