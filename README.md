@@ -51,6 +51,7 @@ This configuration applies to all faders in the card
 | `relativeFader`       | If true, clicking a fader sets focus and mouse movement adjusts the value relative to the starting point, rather than setting the value directly. | `false`      |
 | `alwaysShowFaderValue` | If set, the fader value will be displayed even when the fader is not active.                                      | `false`      |
 | `showActiveButton`     | Show the Active/Mute button by default. Set to `false` to hide the button for all faders (can be overridden per fader). | `true`       |
+| `showDbScale`          | Show the printed dB scale next to the fader by default (`physical` theme, vertical orientation only). Set to `false` to hide it for all faders (can be overridden per fader). | `true`       |
 | `haCard`               | Should the card include a `<ha-card>` element? Boolean                                                            | `true`       |
 | `title`                | Add a title to the card                                                                                           |              |
 | `description`          | Add a description to the card                                                                                     |              |
@@ -81,6 +82,7 @@ This is the configuration for each individual fader
 | `value_suffix`     | This string will be appended to the fader value, eg 'dB'  | Optional     |
 | `invert_active`    | If set to true, then the active state of the fader is inverted.  | Optional     |
 | `showActiveButton` | Set to `false` to hide the active/mute button for this fader. Overrides the global `showActiveButton` setting. | Optional     |
+| `showDbScale`      | Set to `false` (or `true`) to override the global `showDbScale` setting for this fader. Only has an effect on the `physical` theme, vertical orientation. | Optional     |
 | `thumb_color`      | Locally overrides the faderThumbColor    | Optional     |
 | `track_color`      | Locally overrides the faderTrackColor  | Optional     |
 | `active_color`     | Locally overrides the faderActiveColor  | Optional     |

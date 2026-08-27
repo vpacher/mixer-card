@@ -19,6 +19,10 @@ export function getConfigDefaults (config) {
     updateWhileMoving: config && config.updateWhileMoving ? config.updateWhileMoving : false,
     alwaysShowFaderValue: config && config.alwaysShowFaderValue ? config.alwaysShowFaderValue : false,
     showActiveButton: config && config.showActiveButton !== undefined ? config.showActiveButton : true,
+    // The printed dB scale is specific to the 'physical' theme (see
+    // isX32Style in mixer-card.js) — this just lets it be turned off there
+    // while keeping the rest of the X32-style layout (value-on-top).
+    showDbScale: config && config.showDbScale !== undefined ? config.showDbScale : true,
     haCard: config && config.haCard !== undefined ? config.haCard : true,
     description: config && config.description ? config.description : '',
     title: config && config.title ? config.title : '',

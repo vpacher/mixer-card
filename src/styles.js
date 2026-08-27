@@ -311,8 +311,11 @@ export const mixerCardStyles = css`
         gap: 0;
     }
     /* The scale sits beside the slider, so the fader column needs to be
-       wider than just the slider's own thickness to fit both. */
-    .fader-orientation-vertical .fader-theme-physical .fader {
+       wider than just the slider's own thickness to fit both — but only
+       when the scale is actually rendered (showDbScale: false drops the
+       .has-db-scale class along with the scale markup itself, see
+       renderFader in mixer-card.js). */
+    .fader-orientation-vertical .fader.has-db-scale {
         width: calc(var(--fader-width) + 26px);
     }
     /* .fader-value-top/.fader-name center themselves across the *whole*
@@ -320,8 +323,8 @@ export const mixerCardStyles = css`
        to the left — so their centered text skews visibly left of the
        slider itself. Push the centering context right by exactly that
        width so it lines up with the slider, not the scale+slider box. */
-    .fader-orientation-vertical .fader-theme-physical .fader-value-top,
-    .fader-orientation-vertical .fader-theme-physical .fader-name {
+    .fader-orientation-vertical .fader.has-db-scale .fader-value-top,
+    .fader-orientation-vertical .fader.has-db-scale .fader-name {
         margin-left: 26px;
     }
     .fader-db-scale {

@@ -141,7 +141,9 @@ class MixerCard extends LitElement {
     // faders, and horizontal's DOM already leans on fragile flex `order`
     // tricks (see styles.js) that a new wrapper element would break.
     const isX32Style = cfg.faderTheme === 'physical' && cfg.orientation !== 'horizontal'
-    const rangeSection = isX32Style
+    const showDbScale = (typeof faderRow.showDbScale === 'boolean') ? faderRow.showDbScale : cfg.showDbScale
+    const showScale = isX32Style && showDbScale
+    const rangeSection = showScale
       ? html`
           <div class='range-holder-wrap'>
             ${renderDbScale()}
@@ -156,7 +158,7 @@ class MixerCard extends LitElement {
           </div>
         `
     return html`
-      <div class='fader' id='fader_${faderRow.entity_id}'>
+      <div class='fader ${showScale ? 'has-db-scale' : ''}' id='fader_${faderRow.entity_id}'>
         ${isX32Style ? html`<div class='fader-value fader-value-top'>${valueTemplate}</div>` : ''}
         ${rangeSection}
         <div class='fader-data'>
@@ -351,9 +353,13 @@ class MixerCard extends LitElement {
     const holder = this.shadowRoot.querySelector('.fader-holder')
     if (!holder) return
     const faderCount = (this.config.faders && this.config.faders.length) ? this.config.faders.length : 1
-    const isX32Style = cfg.faderTheme === 'physical'
+    // Per-fader showDbScale overrides can't be reflected here (--fader-width
+    // is one shared value for the whole card), so this uses only the
+    // card-level default — a fader that overrides it away from that default
+    // will be very slightly mis-sized, an acceptable edge case.
+    const showScale = cfg.faderTheme === 'physical' && cfg.showDbScale
     const gap = 8 // .fader-holder's gap
-    const perFaderChrome = 20 + (isX32Style ? 26 : 0) // .fader padding (10px * 2), plus the dB scale's own width+gap for physical theme
+    const perFaderChrome = 20 + (showScale ? 26 : 0) // .fader padding (10px * 2), plus the dB scale's own width+gap for physical theme
     const availableWidth = holder.clientWidth
     const perFaderTotal = (availableWidth - gap * (faderCount - 1)) / faderCount
     const thickness = Math.floor(perFaderTotal - perFaderChrome)
