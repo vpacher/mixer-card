@@ -228,9 +228,28 @@ export const mixerCardStyles = css`
     }
 
     /* Theme Physical */
+    .fader-orientation-vertical .fader-theme-physical .range-holder {
+        /* Clips the small overshoot the width extension below creates
+           beyond the visible track (the knob peeking slightly past the
+           housing at full travel, matching real hardware). */
+        overflow: hidden;
+    }
     .fader-theme-physical .range-holder input[type="range"] {
         top: 50%;
-        width: var(--fader-height);
+        /* An unstyled range input always insets its thumb's travel by half
+           the thumb's own along-track size from each end of its track —
+           so at raw value 0/1 the knob stops short of the true top/bottom
+           extremes (and of where the dB scale's +10/-∞ labels sit, see
+           renderDbScale in helpers.js). Extending the track by exactly the
+           knob's own width (matching the ratio used for the knob itself
+           below) and re-centering via the right offset cancels that inset
+           out entirely, so the knob's center lines up with the scale's
+           edges at full travel -- verified against real X32 reference
+           screenshots showing exactly that alignment.
+           (Vertical orientation only -- horizontal's own width:100% rule
+           further down wins on specificity and is unaffected.) */
+        width: calc(var(--fader-height) + (var(--fader-width) * 0.56667));
+        right: calc(50% - ((var(--fader-height) + (var(--fader-width) * 0.56667)) / 2));
         height: 5px;
         background-color: var(--fader-track-color);
     }
