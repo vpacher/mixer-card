@@ -16,7 +16,7 @@ export const mixerCardStyles = css`
            modest fixed default plus .fader-holder's flex-wrap is what
            actually makes this responsive: faders wrap onto a new row once
            the card's *own* width runs out, regardless of viewport size. */
-        --fader-width: 56px;
+        --fader-width: 84px;
         --fader-height: 220px;
     }
 
@@ -84,7 +84,9 @@ export const mixerCardStyles = css`
     .fader-orientation-vertical .fader-value {
         margin-top: 10px;
         text-align: center;
-        overflow-wrap: break-word;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
     .fader-orientation-vertical .fader-name {
         margin-top: 30px;
@@ -94,7 +96,14 @@ export const mixerCardStyles = css`
         text-align: center;
         font-size:14px;
         text-transform: capitalize;
-        overflow-wrap: break-word;
+        /* Truncate rather than wrap/grow: a longer name (e.g. "Office
+           Speaker") should never widen the fader column — that's the
+           slider's job to define (--fader-width), not the label's. This
+           matches how HA's own cards handle overflowing text (tile, entity
+           rows, etc: ellipsis, not reflow). */
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .fader-orientation-vertical .active-button {
