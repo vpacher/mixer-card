@@ -7,10 +7,17 @@ export const mixerCardStyles = css`
         box-sizing: border-box;
         /* Fluid fader dimensions: used whenever a fader/card config doesn't
            set an explicit faderWidth/faderHeight (see getConfigDefaults).
-           clamp() keeps them shrinking on narrow/short viewports instead of
-           overflowing, without needing per-instance JS/config sizing. */
-        --fader-width: clamp(44px, 8vw, 90px);
-        --fader-height: clamp(160px, 32vh, 360px);
+           Deliberately fixed, not vw/vh-based: this card can end up in a
+           section column far narrower than the browser viewport (HA's
+           sections view splits the page into several such columns), and
+           viewport units have no way to know that — they size against the
+           whole window, not the space actually given to the card, which
+           reintroduces the original overflow/wrap bug one level up. A
+           modest fixed default plus .fader-holder's flex-wrap is what
+           actually makes this responsive: faders wrap onto a new row once
+           the card's *own* width runs out, regardless of viewport size. */
+        --fader-width: 56px;
+        --fader-height: 220px;
     }
 
     h4 {
@@ -64,10 +71,20 @@ export const mixerCardStyles = css`
 
     .fader-orientation-vertical .fader {
         padding: 6px 10px;
+        /* Fixed to the slider's own thickness rather than sized from the
+           name/value text below it — otherwise a longer fader name (e.g.
+           "Office Speaker") silently widens the whole column, and a couple
+           of those can be just enough to tip flex-wrap into wrapping faders
+           that would otherwise fit side by side. Text wraps within this
+           width instead (see .fader-name/.fader-value below). */
+        width: var(--fader-width);
+        flex: 0 0 auto;
+        box-sizing: content-box;
     }
     .fader-orientation-vertical .fader-value {
         margin-top: 10px;
         text-align: center;
+        overflow-wrap: break-word;
     }
     .fader-orientation-vertical .fader-name {
         margin-top: 30px;
@@ -77,6 +94,7 @@ export const mixerCardStyles = css`
         text-align: center;
         font-size:14px;
         text-transform: capitalize;
+        overflow-wrap: break-word;
     }
 
     .fader-orientation-vertical .active-button {

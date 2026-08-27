@@ -312,9 +312,9 @@ class MixerCard extends LitElement {
     // Vertical faders sit side-by-side in a single row, so height tracks
     // the fader length, not how many there are. In fluid mode (no explicit
     // faderHeight) there's no literal pixel value to read, so fall back to
-    // a size matching the default clamp() range in styles.js.
+    // a size matching the fixed --fader-height default in styles.js.
     const lengthPx = parseInt((cfg.faderHeight || '').toString().replace('px', ''), 10)
-    const rows = Number.isFinite(lengthPx) && lengthPx > 0 ? Math.ceil(lengthPx / 50) : 6
+    const rows = Number.isFinite(lengthPx) && lengthPx > 0 ? Math.ceil(lengthPx / 50) : 5
     return rows + 1
   }
 
