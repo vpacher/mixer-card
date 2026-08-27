@@ -27,24 +27,30 @@ export function getConfigDefaults (config) {
   }
 }
 
-// Decorative dB scale matching the look of a Behringer X32/M32 channel
-// strip's printed fader scale. Positions (0% = top of travel, 100% =
-// bottom) are hand-picked to visually resemble the real hardware's tick
-// spacing — they are NOT derived from the mixer's actual non-linear fader
-// law, since that conversion isn't exposed to this card. Purely cosmetic.
+// dB scale matching the look of a Behringer X32/M32 channel strip's
+// printed fader scale. Positions (0% = top of travel, 100% = bottom) are
+// derived from the X32's actual fader law — confirmed empirically against
+// a live X32 (sweeping number.x32_main_fader and reading back its `db`
+// attribute), since the mixer doesn't expose the raw<->dB conversion
+// directly. The law is piecewise-linear in the raw 0-1 fader position (f):
+//   f in [0.5,  1.0 ]: dB = f *  40 - 30   (+10 .. -10 dB)
+//   f in [0.25, 0.5 ): dB = f *  80 - 50   (-10 .. -30 dB)
+//   f in [0.0625,0.25): dB = f * 160 - 70  (-30 .. -60 dB)
+//   f in [0,   0.0625): dB = f * 480 - 90  (-60 .. -90 dB, floor/mute)
+// top% = (1 - f) * 100 for the f that solves each label's dB above.
 export const X32_DB_SCALE_TICKS = [
   { label: '+10', top: 0 },
-  { label: '5', top: 8 },
-  { label: '0', top: 18 },
-  { label: '-5', top: 28 },
-  { label: '-10', top: 38 },
-  { label: '-15', top: 46 },
-  { label: '-20', top: 53 },
-  { label: '-25', top: 60 },
-  { label: '-30', top: 66 },
-  { label: '-40', top: 78 },
-  { label: '-50', top: 87 },
-  { label: '-60', top: 94 },
+  { label: '5', top: 12.5 },
+  { label: '0', top: 25 },
+  { label: '-5', top: 37.5 },
+  { label: '-10', top: 50 },
+  { label: '-15', top: 56.25 },
+  { label: '-20', top: 62.5 },
+  { label: '-25', top: 68.75 },
+  { label: '-30', top: 75 },
+  { label: '-40', top: 81.25 },
+  { label: '-50', top: 87.5 },
+  { label: '-60', top: 93.75 },
   { label: '-∞', top: 100 }
 ]
 
