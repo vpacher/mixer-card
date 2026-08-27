@@ -306,7 +306,9 @@ export const mixerCardStyles = css`
     .range-holder-wrap {
         display: flex;
         align-items: stretch;
-        gap: 4px;
+        /* No gap: the scale's own tick lines (below) bridge the space to
+           the slider, so it reads as connected rather than floating. */
+        gap: 0;
     }
     /* The scale sits beside the slider, so the fader column needs to be
        wider than just the slider's own thickness to fit both. */
@@ -324,7 +326,10 @@ export const mixerCardStyles = css`
     }
     .fader-db-scale {
         position: relative;
-        width: 22px;
+        /* Was 22px + a 4px gap to the slider; the gap moved to 0 above, so
+           this absorbs it — same total footprint, just tighter to the
+           fader (see .fader's own +26px width allowance below). */
+        width: 26px;
         flex: 0 0 auto;
         font-size: 9px;
         line-height: 1;
@@ -335,5 +340,17 @@ export const mixerCardStyles = css`
         right: 0;
         transform: translateY(-50%);
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+        gap: 3px;
+    }
+    .fader-db-scale .db-tick-line {
+        flex: 0 0 auto;
+        height: 1px;
+        background: currentColor;
+        width: 3px;
+    }
+    .fader-db-scale .db-tick.major .db-tick-line {
+        width: 6px;
     }
 `

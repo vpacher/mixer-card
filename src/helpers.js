@@ -38,20 +38,23 @@ export function getConfigDefaults (config) {
 //   f in [0.25, 0.5 ): dB = f *  80 - 50   (-10 .. -30 dB)
 //   f in [0.0625,0.25): dB = f * 160 - 70  (-30 .. -60 dB)
 //   f in [0,   0.0625): dB = f * 480 - 90  (-60 .. -90 dB, floor/mute)
+// `major` picks the tick-line style: longer for the round-ten marks
+// (matching a real X32's silkscreened scale), shorter for the
+// half-division marks in between.
 export const X32_DB_SCALE_TICKS = [
-  { label: '+10', f: 1 },
-  { label: '5', f: 0.875 },
-  { label: '0', f: 0.75 },
-  { label: '-5', f: 0.625 },
-  { label: '-10', f: 0.5 },
-  { label: '-15', f: 0.4375 },
-  { label: '-20', f: 0.375 },
-  { label: '-25', f: 0.3125 },
-  { label: '-30', f: 0.25 },
-  { label: '-40', f: 0.1875 },
-  { label: '-50', f: 0.125 },
-  { label: '-60', f: 0.0625 },
-  { label: '-∞', f: 0 }
+  { label: '+10', f: 1, major: true },
+  { label: '5', f: 0.875, major: false },
+  { label: '0', f: 0.75, major: true },
+  { label: '-5', f: 0.625, major: false },
+  { label: '-10', f: 0.5, major: true },
+  { label: '-15', f: 0.4375, major: false },
+  { label: '-20', f: 0.375, major: true },
+  { label: '-25', f: 0.3125, major: false },
+  { label: '-30', f: 0.25, major: true },
+  { label: '-40', f: 0.1875, major: true },
+  { label: '-50', f: 0.125, major: true },
+  { label: '-60', f: 0.0625, major: true },
+  { label: '-∞', f: 0, major: true }
 ]
 
 // The physical theme's ::-webkit-slider-thumb along-track size (see
@@ -67,12 +70,32 @@ export function renderDbScale () {
   // Reproducing the browser's own formula here keeps every tick lined up
   // with where the thumb's center actually renders, at any --fader-width/
   // --fader-height (fluid or explicit).
+  //
+  // Exception: the two end ticks (+10/-∞) are pinned to the literal
+  // top/bottom edge instead of the formula's inset position. Applying the
+  // thumb-inset there too would leave a gap (up to ~half the knob's own
+  // height) between the printed scale and the visible ends of the fader
+  // track — a real X32's scale runs the full length of the slot, so this
+  // matters more than exact knob-center precision at the two extremes,
+  // where it isn't visually checkable against anything else anyway.
   return html`
     <div class="fader-db-scale">
       ${X32_DB_SCALE_TICKS.map(tick => {
-        const oneMinusF = 1 - tick.f
-        const top = `calc(${oneMinusF} * (var(--fader-height) - (${X32_THUMB_SIZE_CSS})) + (${X32_THUMB_SIZE_CSS}) / 2)`
-        return html`<span class="db-tick" style="top: ${top}">${tick.label}</span>`
+        let top
+        if (tick.f === 1) {
+          top = '0'
+        } else if (tick.f === 0) {
+          top = '100%'
+        } else {
+          const oneMinusF = 1 - tick.f
+          top = `calc(${oneMinusF} * (var(--fader-height) - (${X32_THUMB_SIZE_CSS})) + (${X32_THUMB_SIZE_CSS}) / 2)`
+        }
+        return html`
+          <span class="db-tick ${tick.major ? 'major' : 'minor'}" style="top: ${top}">
+            <span class="db-tick-label">${tick.label}</span>
+            <span class="db-tick-line"></span>
+          </span>
+        `
       })}
     </div>
   `
