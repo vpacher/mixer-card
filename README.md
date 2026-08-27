@@ -40,8 +40,8 @@ This configuration applies to all faders in the card
 |------------------------|-------------------------------------------------------------------------------------------------------------------|--------------|
 | `faders`               | An array of faders - See *Fader Card Configuration*                                                               | **Required** |
 | `borderRadius`         | The border radius for the individual faders                                                                       | `12px`       |
-| `faderWidth`           | The width of each individual fader. (The short side - in horizontal orientation - the height)                     | `150px`      |
-| `faderHeight`          | The height of each individual fader. (The long side - in horizontal orientation - the width)                      | `400px`      |
+| `faderWidth`           | The width of each individual fader. (The short side - in horizontal orientation - the height). Leave unset for fluid sizing (see *Responsive layout* below). | fluid |
+| `faderHeight`          | The height of each individual fader. (The long side - in horizontal orientation - the width). Leave unset for fluid sizing (see *Responsive layout* below). | fluid |
 | `faderThumbColor`      | The color of the 'thumb' element of the fader (only valid for modern theme)                                       | `#ddd`       |
 | `faderTrackColor`      | The color of the fader track                                                                                      | `#ddd`       |
 | `faderActiveColor`     | The color of the active portion of the track when above 0                                                         | `#22ba00`    |
@@ -61,6 +61,12 @@ This configuration applies to all faders in the card
 >  ***Note on Horizontal Faders***
 >
 >  The horizontal fader implementation is new and the layout will probably change with time.  However if you are just wanting 'horizontal' volume controls, you may be better served with other Home Assistant Cards such as the Mushroom Cards.
+
+### Responsive layout
+
+By default (when `faderWidth`/`faderHeight` are left unset) the card sizes itself fluidly: fader thickness and length scale with the viewport via CSS `clamp()`, faders wrap onto a new row instead of being clipped or forced into a horizontal scrollbar on narrow screens, and the card requests full-width grid placement (`columns: 'full'`) in Home Assistant's sections view so it doesn't need pixel-based column guessing.
+
+Set `faderWidth`/`faderHeight` explicitly to opt back into the old fixed-pixel sizing behavior.
 
 ### Fader Card Configuration
 This is the configuration for each individual fader

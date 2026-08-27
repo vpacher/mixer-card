@@ -4,8 +4,13 @@ import { html } from 'lit'
 export function getConfigDefaults (config) {
   return {
     borderRadius: config && config.borderRadius ? config.borderRadius : '12px',
-    faderWidth: config && config.faderWidth ? config.faderWidth : '150px',
-    faderHeight: config && config.faderHeight ? config.faderHeight : '400px',
+    // Leaving these unset (null) puts the card in fluid mode: it sizes
+    // itself from CSS (see :host in styles.js) to fit whatever width/height
+    // Home Assistant's layout gives it, instead of a fixed pixel size that
+    // overflows on narrow viewports. Set them explicitly to opt back into
+    // the old fixed-size behavior.
+    faderWidth: config && config.faderWidth ? config.faderWidth : null,
+    faderHeight: config && config.faderHeight ? config.faderHeight : null,
     faderInactiveColor: config && config.faderInactiveColor ? config.faderInactiveColor : '#f00',
     faderThumbColor: config && config.faderThumbColor ? config.faderThumbColor : '#ddd',
     faderTrackColor: config && config.faderTrackColor ? config.faderTrackColor : '#ddd',
@@ -29,7 +34,9 @@ export function generateHeader (cfg) {
 }
 
 export function getFaderStyle (faderColors, cfg, activeState) {
-  let style = `--fader-width: ${cfg.faderWidth}; --fader-height: ${cfg.faderHeight}; --fader-border-radius: ${cfg.borderRadius}; `
+  let style = `--fader-border-radius: ${cfg.borderRadius}; `
+  if (cfg.faderWidth) style += `--fader-width: ${cfg.faderWidth}; `
+  if (cfg.faderHeight) style += `--fader-height: ${cfg.faderHeight}; `
   style += `--fader-color: ${activeState === 'on' ? faderColors.active : faderColors.inactive}; `
   style += `--fader-thumb-color: ${faderColors.thumb}; --fader-track-color: ${faderColors.track}; --fader-track-inactive-color: ${faderColors.inactive};`
   if (cfg.faderKnobImage) {

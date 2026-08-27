@@ -130,9 +130,10 @@ class MixerCard extends LitElement {
     } else {
       rangeInput = html`<input type='range' class='${inputClasses}' id='${inputId}' style='${inputStyle}' .value='${inputValue}' @change=${e => this._setFaderLevel(stateObj, e.target.value)}>`
     }
+    const rangeHolderSizeVars = `${cfg.faderHeight ? `--fader-height: ${cfg.faderHeight};` : ''}${cfg.faderWidth ? `--fader-width: ${cfg.faderWidth};` : ''}`
     return html`
       <div class='fader' id='fader_${faderRow.entity_id}'>
-        <div class='range-holder' style='--fader-height: ${cfg.faderHeight};--fader-width: ${cfg.faderWidth};'>
+        <div class='range-holder' style='${rangeHolderSizeVars}'>
           ${rangeInput}
         </div>
         <div class='fader-data'>
@@ -302,16 +303,40 @@ class MixerCard extends LitElement {
   }
 
   getCardSize () {
-    return this.config.faders.length + 1
+    const cfg = getConfigDefaults(this.config)
+    const faderCount = (this.config.faders && this.config.faders.length) ? this.config.faders.length : 1
+    if (cfg.orientation === 'horizontal') {
+      // Horizontal faders stack one per row, so height scales with count.
+      return faderCount + 1
+    }
+    // Vertical faders sit side-by-side in a single row, so height tracks
+    // the fader length, not how many there are. In fluid mode (no explicit
+    // faderHeight) there's no literal pixel value to read, so fall back to
+    // a size matching the default clamp() range in styles.js.
+    const lengthPx = parseInt((cfg.faderHeight || '').toString().replace('px', ''), 10)
+    const rows = Number.isFinite(lengthPx) && lengthPx > 0 ? Math.ceil(lengthPx / 50) : 6
+    return rows + 1
   }
 
   getGridOptions () {
+    const cfg = getConfigDefaults(this.config)
+    if (!cfg.faderWidth && !cfg.faderHeight) {
+      // Fluid mode: let the card span whatever width the section gives it
+      // instead of guessing a column count from pixel dimensions that no
+      // longer exist.
+      return {
+        columns: 'full',
+        rows: 'auto',
+        min_columns: 6
+      }
+    }
     const faderCount = (this.config.faders && this.config.faders.length) ? this.config.faders.length : 1
-    const isHorizontal = this.config.orientation === 'horizontal'
+    const isHorizontal = cfg.orientation === 'horizontal'
     const rawSize = isHorizontal
-      ? (this.config.faderHeight || '150')
-      : (this.config.faderWidth || '150')
-    let faderSize = parseInt(rawSize.toString().replace('px', ''))
+      ? (cfg.faderHeight || '150')
+      : (cfg.faderWidth || '150')
+    let faderSize = parseInt(rawSize.toString().replace('px', ''), 10)
+    if (!Number.isFinite(faderSize)) faderSize = 150
     if (isHorizontal) {
       faderSize = faderSize + 80 // Add extra width for horizontal layout to account for name/value display
     }

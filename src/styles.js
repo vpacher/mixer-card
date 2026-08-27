@@ -3,10 +3,14 @@ import { css } from 'lit'
 export const mixerCardStyles = css`
     :host {
         display: block;
-        width: max-content;
-        min-width: 100%;
-        max-width: 100%;
+        width: 100%;
         box-sizing: border-box;
+        /* Fluid fader dimensions: used whenever a fader/card config doesn't
+           set an explicit faderWidth/faderHeight (see getConfigDefaults).
+           clamp() keeps them shrinking on narrow/short viewports instead of
+           overflowing, without needing per-instance JS/config sizing. */
+        --fader-width: clamp(44px, 8vw, 90px);
+        --fader-height: clamp(160px, 32vh, 360px);
     }
 
     h4 {
@@ -24,13 +28,20 @@ export const mixerCardStyles = css`
       padding-left: 1px;
     }
     .mixer-card {
-        margin: 20px;
+        /* padding (not margin) matches ha-card's own .card-content
+           convention, so this card lines up with sibling cards without
+           needing a card_mod offset hack. */
+        padding: 16px;
+        box-sizing: border-box;
     }
     .fader-holder {
       display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
       width: 100%;
-      overflow-x: auto; /* Enables the scrollbar */
-      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */      
+      overflow-x: auto; /* Fallback if a single row still can't fit */
+      -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
     }
 
 
@@ -160,7 +171,12 @@ export const mixerCardStyles = css`
     .fader-orientation-horizontal .range-holder {
         order: 2;
         height: var(--fader-width);
-        width: var(--fader-height);
+        /* Fill whatever width the row has left, rather than a fixed
+           --fader-height, so horizontal faders track the card's actual
+           width instead of overflowing/underflowing it. */
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 80px;
         position:relative;
         display: flex;
         align-items: center;
@@ -175,6 +191,7 @@ export const mixerCardStyles = css`
         position: absolute;
         transform: translateY(-50%);
         left: 0;
+        width: 100%;
         height: var(--fader-width);
         background-color: var(--fader-track-color);
         transition: box-shadow 0.2s ease-in-out;
@@ -195,8 +212,13 @@ export const mixerCardStyles = css`
     }
     .fader-theme-physical .range-holder input[type="range"]::-webkit-slider-thumb {
         -webkit-appearance: none;
-        height:40px;
-        width:85px;
+        /* Scaled from --fader-width (thickness) rather than a fixed 40x85px,
+           so the knob shrinks/grows with the track instead of overflowing
+           it at small fluid sizes. Ratio matches the old fixed values
+           exactly at the legacy 150px default, so background-size: cover
+           crops the SVG the same way as before at any scale. */
+        height: calc(var(--fader-width) * 0.26667);
+        width: calc(var(--fader-width) * 0.56667);
         cursor: pointer;
         transition: box-shadow 0.2s ease-in-out;
         background-image: var(--fader-knob-image, url("/hacsfiles/mixer-card/fader.svg"));
@@ -236,4 +258,14 @@ export const mixerCardStyles = css`
         top: calc((var(--fader-width) - 80px) / 2);
     }
 
+    /* Both themes above set an explicit width on the range input (driven
+       by --fader-height, meant as the vertical-orientation "length" after
+       rotation). In horizontal orientation that same input is never
+       rotated, so pin its width back to 100% of the flexed range-holder
+       (higher specificity than the theme rules so it wins regardless of
+       theme). */
+    .fader-orientation-horizontal .fader-theme-modern .range-holder input[type="range"],
+    .fader-orientation-horizontal .fader-theme-physical .range-holder input[type="range"] {
+        width: 100%;
+    }
 `
