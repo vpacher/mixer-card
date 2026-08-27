@@ -312,10 +312,53 @@ class MixerCard extends LitElement {
 
   async firstUpdated () {
     await this.update_track_color()
+    this._setupFaderWidthObserver()
   }
 
   async updated () {
     await this.update_track_color()
+    this._recomputeFaderWidth()
+  }
+
+  disconnectedCallback () {
+    super.disconnectedCallback()
+    if (this._faderWidthObserver) {
+      this._faderWidthObserver.disconnect()
+      this._faderWidthObserver = null
+    }
+  }
+
+  _setupFaderWidthObserver () {
+    const holder = this.shadowRoot.querySelector('.fader-holder')
+    if (!holder) return
+    this._faderWidthObserver = new ResizeObserver(() => this._recomputeFaderWidth())
+    this._faderWidthObserver.observe(holder)
+    this._recomputeFaderWidth()
+  }
+
+  // Fluid mode (--fader-width unset in config) picks a fixed thumb-thickness
+  // default, which is wrong for ANY specific card width — too cramped on a
+  // wide card (wasted space either side), too wide on a narrow one. Rather
+  // than guess a better constant, measure the actual space this card was
+  // given and size the thumb thickness to fill it (only for vertical
+  // orientation — horizontal's range-holder already fills its row via
+  // flex, see styles.js). Every downstream calc() (knob size, dB-scale tick
+  // positions) already reads --fader-width as a variable, so recomputing it
+  // here is enough to keep them all correct with no further changes.
+  _recomputeFaderWidth () {
+    const cfg = getConfigDefaults(this.config)
+    if (cfg.faderWidth || cfg.orientation === 'horizontal') return
+    const holder = this.shadowRoot.querySelector('.fader-holder')
+    if (!holder) return
+    const faderCount = (this.config.faders && this.config.faders.length) ? this.config.faders.length : 1
+    const isX32Style = cfg.faderTheme === 'physical'
+    const gap = 8 // .fader-holder's gap
+    const perFaderChrome = 20 + (isX32Style ? 26 : 0) // .fader padding (10px * 2), plus the dB scale's own width+gap for physical theme
+    const availableWidth = holder.clientWidth
+    const perFaderTotal = (availableWidth - gap * (faderCount - 1)) / faderCount
+    const thickness = Math.floor(perFaderTotal - perFaderChrome)
+    const clamped = Math.max(44, Math.min(150, thickness))
+    this.style.setProperty('--fader-width', `${clamped}px`)
   }
 
   setConfig (config) {
