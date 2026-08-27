@@ -313,6 +313,15 @@ export const mixerCardStyles = css`
     .fader-orientation-vertical .fader-theme-physical .fader {
         width: calc(var(--fader-width) + 26px);
     }
+    /* .fader-value-top/.fader-name center themselves across the *whole*
+       fader box by default, which now includes the scale's 22px + 4px gap
+       to the left — so their centered text skews visibly left of the
+       slider itself. Push the centering context right by exactly that
+       width so it lines up with the slider, not the scale+slider box. */
+    .fader-orientation-vertical .fader-theme-physical .fader-value-top,
+    .fader-orientation-vertical .fader-theme-physical .fader-name {
+        margin-left: 26px;
+    }
     .fader-db-scale {
         position: relative;
         width: 22px;
