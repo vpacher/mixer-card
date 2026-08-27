@@ -61,39 +61,20 @@ export const X32_DB_SCALE_TICKS = [
   { label: '-∞', f: 0, major: true }
 ]
 
-// The physical theme's ::-webkit-slider-thumb along-track size (see
-// styles.js) — needed here too so tick positions account for it below.
-const X32_THUMB_SIZE_CSS = 'var(--fader-width) * 0.56667'
-
 export function renderDbScale () {
-  // A native <input type="range"> thumb — even fully custom-styled via
-  // ::-webkit-slider-thumb — is positioned with half its own size inset
-  // from each end of the track: value 0 renders at thumb-size/2, not at
-  // pixel 0. A naive edge-to-edge percentage ignores that inset and comes
-  // out visibly (if subtly) off, worse the closer a tick is to either end.
-  // Reproducing the browser's own formula here keeps every tick lined up
-  // with where the thumb's center actually renders, at any --fader-width/
-  // --fader-height (fluid or explicit).
-  //
-  // Exception: the two end ticks (+10/-∞) are pinned to the literal
-  // top/bottom edge instead of the formula's inset position. Applying the
-  // thumb-inset there too would leave a gap (up to ~half the knob's own
-  // height) between the printed scale and the visible ends of the fader
-  // track — a real X32's scale runs the full length of the slot, so this
-  // matters more than exact knob-center precision at the two extremes,
-  // where it isn't visually checkable against anything else anyway.
+  // A native <input type="range"> thumb is normally positioned with half
+  // its own size inset from each end of the track (value 0 renders at
+  // thumb-size/2, not at pixel 0) — but the physical theme's range input
+  // (see styles.js) deliberately extends its own track by exactly the
+  // knob's along-track size and re-centers it, which cancels that inset
+  // out entirely. The knob's rendered position is therefore already a
+  // plain linear function of value across the whole visible track, so
+  // every tick (including the +10/-∞ ends) uses the same one-line formula
+  // here, no thumb-size math or end-case special-casing needed.
   return html`
     <div class="fader-db-scale">
       ${X32_DB_SCALE_TICKS.map(tick => {
-        let top
-        if (tick.f === 1) {
-          top = '0'
-        } else if (tick.f === 0) {
-          top = '100%'
-        } else {
-          const oneMinusF = 1 - tick.f
-          top = `calc(${oneMinusF} * (var(--fader-height) - (${X32_THUMB_SIZE_CSS})) + (${X32_THUMB_SIZE_CSS}) / 2)`
-        }
+        const top = `${(1 - tick.f) * 100}%`
         return html`
           <span class="db-tick ${tick.major ? 'major' : 'minor'}" style="top: ${top}">
             <span class="db-tick-label">${tick.label}</span>

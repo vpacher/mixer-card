@@ -228,11 +228,21 @@ export const mixerCardStyles = css`
     }
 
     /* Theme Physical */
-    .fader-orientation-vertical .fader-theme-physical .range-holder {
-        /* Clips the small overshoot the width extension below creates
-           beyond the visible track (the knob peeking slightly past the
-           housing at full travel, matching real hardware). */
-        overflow: hidden;
+    /* The knob-width track extension below (so the knob's center can reach
+       the true top/bottom extremes) makes the knob itself overshoot the
+       nominal track by half its own along-track size at full travel —
+       clipping that with overflow:hidden just cuts the knob in half at the
+       extremes, which reads as a rendering bug, not a housing edge. Instead
+       give the knob room to be fully visible there: push the range-holder-
+       wrap (or bare range-holder when the dB scale is hidden, see
+       mixer-card.js) away from the value/name text above and below by
+       exactly that overshoot amount, on both sides of the direct-child
+       selector since which element is the actual direct child differs
+       depending on whether the scale renders. */
+    .fader-orientation-vertical .fader-theme-physical .fader > .range-holder,
+    .fader-orientation-vertical .fader-theme-physical .fader > .range-holder-wrap {
+        margin-top: calc(var(--fader-width) * 0.283335);
+        margin-bottom: calc(var(--fader-width) * 0.283335);
     }
     .fader-theme-physical .range-holder input[type="range"] {
         top: 50%;
