@@ -27,6 +27,35 @@ export function getConfigDefaults (config) {
   }
 }
 
+// Decorative dB scale matching the look of a Behringer X32/M32 channel
+// strip's printed fader scale. Positions (0% = top of travel, 100% =
+// bottom) are hand-picked to visually resemble the real hardware's tick
+// spacing — they are NOT derived from the mixer's actual non-linear fader
+// law, since that conversion isn't exposed to this card. Purely cosmetic.
+export const X32_DB_SCALE_TICKS = [
+  { label: '+10', top: 0 },
+  { label: '5', top: 8 },
+  { label: '0', top: 18 },
+  { label: '-5', top: 28 },
+  { label: '-10', top: 38 },
+  { label: '-15', top: 46 },
+  { label: '-20', top: 53 },
+  { label: '-25', top: 60 },
+  { label: '-30', top: 66 },
+  { label: '-40', top: 78 },
+  { label: '-50', top: 87 },
+  { label: '-60', top: 94 },
+  { label: '-∞', top: 100 }
+]
+
+export function renderDbScale () {
+  return html`
+    <div class="fader-db-scale">
+      ${X32_DB_SCALE_TICKS.map(tick => html`<span class="db-tick" style="top: ${tick.top}%">${tick.label}</span>`)}
+    </div>
+  `
+}
+
 export function generateHeader (cfg) {
   const header = cfg.title ? html`<h1 class='card-header'><div class='name'>${cfg.title}</div></div>` : ''
   const desc = cfg.description ? html`<p class='mixer-description'>${cfg.description}</p>` : ''

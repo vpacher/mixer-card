@@ -295,4 +295,36 @@ export const mixerCardStyles = css`
     .fader-orientation-horizontal .fader-theme-physical .range-holder input[type="range"] {
         width: 100%;
     }
+
+    /* X32-style layout (physical theme, vertical orientation only — see
+       isX32Style in mixer-card.js). Value readout above the fader instead
+       of below, plus a printed dB scale to its left. */
+    .fader-value-top {
+        margin-top: 0;
+        margin-bottom: 8px;
+    }
+    .range-holder-wrap {
+        display: flex;
+        align-items: stretch;
+        gap: 4px;
+    }
+    /* The scale sits beside the slider, so the fader column needs to be
+       wider than just the slider's own thickness to fit both. */
+    .fader-orientation-vertical .fader-theme-physical .fader {
+        width: calc(var(--fader-width) + 26px);
+    }
+    .fader-db-scale {
+        position: relative;
+        width: 22px;
+        flex: 0 0 auto;
+        font-size: 9px;
+        line-height: 1;
+        color: var(--secondary-text-color, #888);
+    }
+    .fader-db-scale .db-tick {
+        position: absolute;
+        right: 0;
+        transform: translateY(-50%);
+        white-space: nowrap;
+    }
 `

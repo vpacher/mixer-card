@@ -11,7 +11,8 @@ import {
   getFaderStyle,
   getFaderColor,
   getFaderIcon,
-  getFaderValue
+  getFaderValue,
+  renderDbScale
 } from './helpers.js'
 import { mixerCardStyles } from './styles.js'
 
@@ -131,14 +132,36 @@ class MixerCard extends LitElement {
       rangeInput = html`<input type='range' class='${inputClasses}' id='${inputId}' style='${inputStyle}' .value='${inputValue}' @change=${e => this._setFaderLevel(stateObj, e.target.value)}>`
     }
     const rangeHolderSizeVars = `${cfg.faderHeight ? `--fader-height: ${cfg.faderHeight};` : ''}${cfg.faderWidth ? `--fader-width: ${cfg.faderWidth};` : ''}`
+    const valueTemplate = ((activeState === 'on') || cfg.alwaysShowFaderValue) ? displayValue : html`<br>`
+    // X32-style layout (the 'physical' theme's whole point is to resemble
+    // a real Behringer console channel strip): value readout above the
+    // fader and a printed dB scale beside it, rather than the modern
+    // theme's HA-native value-below-the-slider layout. Kept out of
+    // horizontal orientation — real X32 hardware has no horizontal
+    // faders, and horizontal's DOM already leans on fragile flex `order`
+    // tricks (see styles.js) that a new wrapper element would break.
+    const isX32Style = cfg.faderTheme === 'physical' && cfg.orientation !== 'horizontal'
+    const rangeSection = isX32Style
+      ? html`
+          <div class='range-holder-wrap'>
+            ${renderDbScale()}
+            <div class='range-holder' style='${rangeHolderSizeVars}'>
+              ${rangeInput}
+            </div>
+          </div>
+        `
+      : html`
+          <div class='range-holder' style='${rangeHolderSizeVars}'>
+            ${rangeInput}
+          </div>
+        `
     return html`
       <div class='fader' id='fader_${faderRow.entity_id}'>
-        <div class='range-holder' style='${rangeHolderSizeVars}'>
-          ${rangeInput}
-        </div>
+        ${isX32Style ? html`<div class='fader-value fader-value-top'>${valueTemplate}</div>` : ''}
+        ${rangeSection}
         <div class='fader-data'>
           <div class='fader-name'>${faderName}</div>
-          <div class='fader-value'>${(activeState === 'on') || cfg.alwaysShowFaderValue ? displayValue : html`<br>`}</div>
+          ${!isX32Style ? html`<div class='fader-value'>${valueTemplate}</div>` : ''}
           <div class='active-button-holder ${unavailable ? 'button-disabled' : ''}'>${activeButton}</div>
         </div>
       </div>
